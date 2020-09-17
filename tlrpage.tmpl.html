@@ -1,0 +1,115 @@
+<!doctype html>
+<html>
+<head>
+	<title>交易记录</title>
+	<meta charset="utf-8" />
+	<style>
+		table {
+			border: 1px solid;
+		}
+		tr, td {
+			border: 1px solid #555;
+		}
+		dt {
+			font-weight: bold;
+		}
+	</style>
+	<script>const bigfuckingobject = $bigfuckingobject</script>
+	<script>
+		function renderItemList (items) {
+			return `<dl>
+			${items.map(i => `
+				<dt>${i.name} (${i.itemLink.match(/(?<=item:)\d+/)[0]})</dt>
+				<dd>${i.numItems}件</dd>
+				<dd>${i.isUsable ? '可用' : '不能使用'}</dd>
+			`).join('')}
+			</dl>`
+		}
+
+		function renderEvents (events) {
+			return events ? events.map(e => {
+				switch (e) {
+					case 'TRADE_SHOW':
+						return '显示交易视窗'
+					case 'TRADE_CLOSED':
+						return '关闭交易视窗'
+					default:
+						return e
+				}
+			}).join('<br />') : ''
+		}
+
+		window.onload = () => {
+			for (let character of bigfuckingobject) {
+				const titleElement = document.createElement('h2')
+				titleElement.textContent = character.displayName
+				document.body.appendChild(titleElement)
+				const tableElement = document.createElement('table')
+				tableElement.innerHTML = `
+					<thead><th>序号</th><th>玩家</th><th>交易对象</th>
+					<th>交出的物品</th><th>交出的金钱</th><th>交易结果</th>
+					<th>收到的物品</th><th>收到的金钱</th><th>交易时间</th>
+					<th>交易地点</th><th>取消原因</th><th>超出距离</th>
+					<th>事件</th></thead>
+					<tbody>
+					${character.details.map(t => `
+						<td>${t.id}</td>
+						<td>${t.player}</td>
+						<td>${t.who}</td>
+						<td>${renderItemList(t.playerItems)}</td>
+						<td>${t.playerMoney / 10000}</td>
+						<td>${(() => {
+							switch (t.result) {
+								case 'complete':
+									return '完成'
+								case 'cancelled':
+									return '取消'
+								case 'error':
+									return '错误'
+								case undefined:
+									return ''
+								default:
+									return t.result
+							}
+						})()}</td>
+						<td>${renderItemList(t.targetItems)}</td>
+						<td>${t.targetMoney / 10000}</td>
+						<td>${t.when}</td>
+						<td>${t.where}</td>
+						<td>${(() => {
+							switch (t.reason) {
+								case 'other':
+									return '其它'
+								case 'cancelled':
+									return '自身'
+								case undefined:
+									return ''
+								default:
+									return t.reason
+							}
+						})()}</td>
+						<td>${(() => {
+							switch (t.toofar) {
+								case 'yes':
+									return '是'
+								case 'no':
+									return '否'
+								case undefined:
+									return ''
+								default:
+									return t.toofar
+							}
+						})()}</td>
+						<td>${renderEvents(t.events)}</td>
+					`).map(x => `<tr>${x}</tr>`).join('')}
+					</tbody>
+				`
+				document.body.appendChild(tableElement)
+			}
+		}
+	</script>
+</head>
+<body>
+	<h1>交易记录</h1>
+</body>
+</html>

@@ -1,0 +1,1 @@
+powershell -ep bypass -f tlr.ps1
